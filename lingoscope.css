@@ -1,0 +1,319 @@
+h6, h5 {
+	margin-bottom: 0px ;
+}
+
+#search_field {
+	/*width: 200px;*/
+}
+
+#outlet1, #outlet2 {
+	width: 200px;
+	display: inline-block;
+}
+
+/*#outlet1 button {
+	background-color: rgb(188, 221, 253) !important;
+}
+
+#outlet2 button {
+	background-color: rgb(253, 196, 145) !important;
+}*/
+
+#linguistic_context_view {
+	width: 100%;
+	height: 500px;
+}
+
+#linguistic_context_view_list {
+	width: 100%;
+	height: 100%;
+	border: 1px solid #ddd;
+	overflow-y: auto;
+}
+
+#details_view {
+	width: 100%;
+	height: 500px;
+}
+
+#details_view_list {
+	width: 100%;
+	height: 100%;
+	border: 1px solid #ddd;
+	overflow-y: auto;
+}
+
+.view_header {
+	
+}
+
+.view_title {
+	font-size: 10pt;
+	font-weight: 700;
+	font-family: "Helvetica";
+	float: left;
+}
+
+.view_detail {
+	font-weight: 400;
+	font-size: 9pt;
+	color: #888;
+	float: right;
+}
+
+.context_word_view {
+	width: 100%;
+	border-bottom: 1px solid #eee;
+	padding: 5px 5px 5px 10px;
+	height: 50px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+.context_word {
+	font-size: 11pt;
+	line-height: 40px;
+	width: 150px;
+	float: left;
+	cursor: pointer;
+}
+
+.context_word_bar_view {
+	width: 150px;
+	height: 40px;
+	float: left;
+}
+
+.bar1 {
+	fill: rgb(188, 221, 253);
+	cursor: pointer;
+}
+
+.bar1:hover {
+	stroke: rgb(150,150,150);
+	stroke-width: 1px;
+}
+
+.bar2 {
+	fill: rgb(253, 196, 145);
+	cursor: pointer;
+}
+
+.bar2:hover {
+	stroke: rgb(150,150,150);
+	stroke-width: 1px;
+}
+
+.baseline {
+	stroke: rgb(50,50,50);
+	stroke-width: 1px;
+}
+
+.bar_label {
+	fill: rgb(130, 130, 130);
+	font-size: 8pt;
+	font-family: "Helvetica";
+}
+
+
+.details_snippet_view {
+	width: 100%;
+	border-bottom: 1px solid #eee;
+	padding: 5px 5px 5px 10px;	
+	box-sizing:border-box;
+	-moz-box-sizing:border-box; /* Firefox */
+	-webkit-box-sizing:border-box; /* Safari */
+}
+
+.details_snippet_title {	
+	
+	width: 90%;
+	font-size: 10pt;
+	font-weight: 400;
+	font-family: "Helvetica";
+	color: #000;
+	text-decoration: underline;
+}
+
+.details_snippet_title:hover {	
+	color: #555;
+	cursor: pointer;
+}
+
+.details_snippet_fulllink {	
+
+	font-size: 10pt;
+	font-weight: 400;
+	font-family: "Helvetica";
+	color: #000;
+	text-decoration: underline;
+}
+
+.details_snippet_fulllink:hover {	
+	color: #555;
+	cursor: pointer;
+}
+
+.details_snippet_date {	
+	display: inline;
+	float: right;
+	margin-top: 3px;
+	width: 10%;
+	font-size: 8pt;
+	color: #888;
+	font-family: "Helvetica";
+}
+
+.details_snippet {
+
+	font-size: 9pt;
+	color: #111;
+	padding-left: 5px;
+	margin-top: 5px;
+	font-family: "Helvetica";
+}
+
+.context_word_overtime {
+	width: 175px;
+	height: 40px;
+	float: left;
+	margin-left: 10px;
+}
+
+.area1 {
+	fill: rgb(102, 174, 255);
+	fill-opacity: 0.5;
+	pointer-events: none;
+}
+
+.area2 {
+	fill: rgb(253, 154, 71);
+	fill-opacity: 0.5;	
+	pointer-events: none;
+}
+
+.line {
+	stroke-width: 1;
+	stroke: rgb(160,160,160);
+	fill-opacity: 0;
+	pointer-events: none;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-size: 8pt;
+  padding: 6px;
+  /*background: rgba(0, 0, 0, 0.8);*/
+  background: #222;
+  /*border: 1px solid #f0f0f0;*/
+  color: #f0f0f0;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 8px;
+  width: 100%;
+  line-height: 1;
+  margin-top: -2px;
+  /*color: rgba(0, 0, 0, 0.8);*/
+  color: #222;
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+  pointer-events: none;
+}
+
+.loading {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	background: rgba( 255, 255, 255, .8 ) 
+                url('http://nad.webfactional.com/lingoscope/img/ajax-loader2.gif') 
+                50% 50% 
+                no-repeat;
+    background-size: contain;
+    line-height: 15px;
+    margin-bottom: -4px;
+}
+
+.loading_label {
+	line-height: 15px;
+	display: inline-block;
+	margin-right: 5px;
+}
+
+.loading_hits_found_label {
+	line-height: 15px;
+	display: inline-block;
+	margin-left: 5px;
+}
+
+
+.btn-custom {
+  background-color: #BCDDFD;
+  border-color: #BCDDFD;
+}
+.btn-custom:hover,
+.btn-custom:focus,
+.btn-custom:active,
+.btn-custom.active {
+  background-color: #a3d0fc;
+  border-color: #8ac4fc;
+}
+.btn-custom.disabled:hover,
+.btn-custom.disabled:focus,
+.btn-custom.disabled:active,
+.btn-custom.disabled.active,
+.btn-custom[disabled]:hover,
+.btn-custom[disabled]:focus,
+.btn-custom[disabled]:active,
+.btn-custom[disabled].active,
+fieldset[disabled] .btn-custom:hover,
+fieldset[disabled] .btn-custom:focus,
+fieldset[disabled] .btn-custom:active,
+fieldset[disabled] .btn-custom.active {
+  background-color: #BCDDFD;
+  border-color: #BCDDFD;
+}
+
+.btn-custom2 {
+  background-color: #FDC491;
+  border-color: #FDC491;
+}
+.btn-custom2:hover,
+.btn-custom2:focus,
+.btn-custom2:active,
+.btn-custom2.active {
+  background-color: #fdb778;
+  border-color: #fca95f;
+}
+.btn-custom2.disabled:hover,
+.btn-custom2.disabled:focus,
+.btn-custom2.disabled:active,
+.btn-custom2.disabled.active,
+.btn-custom2[disabled]:hover,
+.btn-custom2[disabled]:focus,
+.btn-custom2[disabled]:active,
+.btn-custom2[disabled].active,
+fieldset[disabled] .btn-custom2:hover,
+fieldset[disabled] .btn-custom2:focus,
+fieldset[disabled] .btn-custom2:active,
+fieldset[disabled] .btn-custom2.active {
+  background-color: #FDC491;
+  border-color: #FDC491;
+}
+
+

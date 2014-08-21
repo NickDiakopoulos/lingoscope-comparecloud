@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<!-- CSS includes -->
+<link rel="stylesheet" href="http://nad.webfactional.com/lingoscope/lib/bootstrap-3.1.1-dist/css/bootstrap.css">
+<link rel="stylesheet" href="http://nad.webfactional.com/lingoscope/v2/css/lingoscope.css" type="text/css">
+
+<!-- .js includes -->
+<script src="http://nad.webfactional.com/lingoscope/v2/config/config.js"></script>
+<script src="http://nad.webfactional.com/lingoscope/lib/json2.js"></script>
+<script src="http://nad.webfactional.com/lingoscope/lib/jquery/jquery-2.0.3.js"></script>
+<script src="http://nad.webfactional.com/lingoscope/lib/d3/d3.v3.js"></script>
+<script src="http://nad.webfactional.com/lingoscope/lib/backbone/underscore.js"></script>
+<script src="http://nad.webfactional.com/lingoscope/lib/backbone/backbone.js"></script>
+<script src="http://nad.webfactional.com/lingoscope/lib/moment-with-langs.js"></script>
+<script src="http://nad.webfactional.com/lingoscope/lib/bootstrap-3.1.1-dist/js/bootstrap.js"></script>
+<script src="http://nad.webfactional.com/lingoscope/lib/typeahead/typeahead.bundle.js"></script>
+
+<script src="http://nad.webfactional.com/lingoscope/lib/d3/d3-tip.js"></script>
+
+<script type="text/javascript" src="DataModels.js"></script>
+<script type="text/javascript" src="DataViews.js"></script>
+
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>LingoScope</title>
+
+<!-- Here are some templates used by the views -->
+<script id="compareCloudTemplate" type="text/template">
+	<div>
+		<svg id="compare_cloud_svg">			
+		</svg>		
+	</div>
+</script>
+
+
+<script id="detailsTemplate" type="text/template">
+	<div> 
+		<div class="details_header"><b>Term:</b> &quot;{{= term}}&quot;</div>
+		<div><b>{{= corpusName_c1 }}</b></div>
+		<div>Post Usage Rate: {{= postRate_c1_percent}}%</div>
+		<div>Post Hits: {{ print(numberWithCommas(postHits_c1)) }}</div>
+		<div><b>{{= corpusName_c2 }}</b></div>
+		<div>Post Usage Rate: {{= postRate_c2_percent}}%</div>
+		<div>Post Hits: {{ print(numberWithCommas(postHits_c2)) }}</div>
+	</div>
+</script>
+
+<script id="detailsContextTemplate" type="text/template">
+	<div> 
+		<div class="details_header"><b>Anchor Term:</b> &quot;{{= search_term}}&quot;</div>
+		<div><b>{{= corpusName_c1 }}</b></div>		
+		<div>Anchor Post Hits: {{ print(numberWithCommas(anchorTermPostHits_c1)) }}</div>
+		<div><b>{{= corpusName_c2 }}</b></div>		
+		<div>Anchor Post Hits: {{ print(numberWithCommas(anchorTermPostHits_c2)) }}</div>
+		<div class="details_header"><b>Context Term:</b> &quot;{{= term}}&quot;</div>
+		<div><b>{{= corpusName_c1 }}</b></div>
+		<div>Post Usage Rate: {{= postRate_c1_percent}}%</div>
+		<div>Post Hits: {{ print(numberWithCommas(postHits_c1)) }}</div>
+		<div><b>{{= corpusName_c2 }}</b></div>
+		<div>Post Usage Rate: {{= postRate_c2_percent}}%</div>
+		<div>Post Hits: {{ print(numberWithCommas(postHits_c2)) }}</div>
+	</div>
+</script>
+
+<script id="suggestionItemTemplate" type="text/template">
+  	<div class="suggestion_item">{{= value }}</div>
+</script>
+
+<script type="text/javascript">
+	window.params = new Object();
+	
+
+	$(document).ready(function() {		
+		// Use mustache style templates
+		_.templateSettings = {
+		  	evaluate: /\{\{(.+?)\}\}/g,
+		    interpolate: /\{\{=(.+?)\}\}/g,
+		    escape: /\{\{-(.+?)\}\}/g
+		};
+
+		var corpora = new CorpusCollection();
+		
+		// Get lists of virtue and vice
+		var virtue_words = new WordCollection();
+		virtue_words.setURL("virtue.json");
+		virtue_words.fetch({ success: function () { 			
+			window.virtue_dict = {}
+			_.each(virtue_words.models, function (m) {
+				virtue_dict[m.get("word")] = 1;
+			}, this)
+		}})
+
+		var vice_words = new WordCollection();
+		vice_words.setURL("vice.json");
+		vice_words.fetch({ success: function () { 
+			window.vice_dict = {}
+			_.each(vice_words.models, function (m) {
+				vice_dict[m.get("word")] = 1;
+			}, this)
+		}})
+
+		var bias_words = new WordCollection();
+		bias_words.setURL("bias_lexicon.json");		
+		bias_words.fetch({ success: function () { 
+			window.bias_dict = {}
+			_.each(bias_words.models, function (m) {
+				bias_dict[m.get("word")] = 1;
+			}, this)
+		}})
+
+
+		$("#filter_virtue").parent().on("click", function (e) {			
+			window.params.filter_virtue = +(!$(this).hasClass("active"));
+
+			//console.log(window.params.filter_virtue)
+			//updateURL();
+			window.compare_cloud.refreshFilters();
+		});
+		$("#filter_vice").parent().on("click", function (e) {			
+			window.params.filter_vice = +(!$(this).hasClass("active"));
+			//updateURL();
+			window.compare_cloud.refreshFilters();
+		});
+		$("#filter_bias").parent().on("click", function (e) {			
+			window.params.filter_bias = +(!$(this).hasClass("active"));
+			//updateURL();
+			window.compare_cloud.refreshFilters();
+		});
+		$("#filter_zscore").parent().on("click", function (e) {			
+			window.params.filter_zscore = +(!$(this).hasClass("active"));
+			//updateURL();
+			window.compare_cloud.refreshFilters();
+		});
+
+
+		$("#search_field").keypress(function(e) {
+			if(e.which == 13)
+			{
+				// if($("#search_field").val() != "")
+				// {				
+					window.params.search_term = $("#search_field").val();	
+					//updateURL();								
+					getAndRenderData();
+				// }
+				e.preventDefault();
+			}			
+		});
+
+		$("#search_button").on("click", function (e) {
+			//if($("#search_field").val() != "")
+			//{				
+				window.params.search_term = $("#search_field").val();		
+				//updateURL();							
+				getAndRenderData();
+			//}
+		});
+
+		window.params.search_term = "";
+		window.params.corpus1 = corpora.findWhere({corpusID: 1})
+		window.params.corpus2 = corpora.findWhere({corpusID: 2})
+		window.params.filter_virtue = 0;
+		window.params.filter_vice = 0;
+		window.params.filter_zscore = 0;
+		window.params.filter_bias = 0;
+
+		$("#outlet1 ul").empty();
+		$("#outlet2 ul").empty();
+		_.each(corpora.models, function (m) {
+			$("#outlet1 ul").append("<li><a href='javascript:;'>"+m.get("corpusName")+"</a></li>");
+			$("#outlet2 ul").append("<li><a href='javascript:;'>"+m.get("corpusName")+"</a></li>");					
+		});
+		$("#outlet1 button span").eq(0).html(window.params.corpus1.get("corpusName"));
+		$("#outlet2 button span").eq(0).html(window.params.corpus2.get("corpusName"));
+		$("#outlet1 a").on("click", function (e) {	
+			var src_name = e.target.innerText;			
+			var m = corpora.findWhere({corpusName: src_name});						
+			window.params.corpus1 = m;
+			$("#outlet1 button span").eq(0).html(window.params.corpus1.get("corpusName"));
+			//updateURL();
+		});
+		$("#outlet2 a").on("click", function (e) {		
+			var src_name = e.target.innerText;
+			var m = corpora.findWhere({corpusName: src_name});					
+			window.params.corpus2 = m;
+			$("#outlet2 button span").eq(0).html(window.params.corpus2.get("corpusName"));
+			//updateURL();
+		});
+
+		$("#search_field").val(window.params.search_term);
+
+		// Get the type ahead going
+		initializeTypeAhead();
+
+
+		window.compare_cloud = new CompareCloud();
+		window.details_view = new DetailsView();
+		//window.details_view = new DetailsView();
+
+		getAndRenderData();
+		
+
+		// Refresh
+		function getAndRenderData() {
+			//window.details_view.clearView();
+			window.compare_cloud.refreshData();
+			window.details_view.clearDetails();	
+		}
+
+
+		function initializeTypeAhead()
+		{
+			// Loads in a .json with the terms that are cached
+			// Uses typeahead https://github.com/twitter/typeahead.js/ and bloodhound: https://github.com/twitter/typeahead.js
+			var suggestion_terms = new Bloodhound({
+			  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+			  queryTokenizer: Bloodhound.tokenizers.whitespace,
+			  prefetch: {
+			  	url: config.URL_ROOT + 'surveillance/data/corpusComputedTerms.json',
+			  	filter: function(list) {		
+			  		//console.log(list)	  		
+			  		return $.map(list.terms, function(item) { return {value: item.term}})
+			  	}
+			  }
+			});
+
+			// kicks off the loading/processing of `local` and `prefetch`
+			suggestion_terms.initialize();
+
+			var sugg_template = _.template($("#suggestionItemTemplate").html());
+			 
+			$('#search_field').typeahead({
+			  hint: true,
+			  highlight: true,
+			  minLength: 1
+			},
+			{
+			  name: 'suggestions',
+			  displayKey: 'value',
+			  //source: substringMatcher(states),
+			  source: suggestion_terms.ttAdapter(),
+			  templates: {suggestion: sugg_template}
+			});			
+		}
+	});
+	d3.selection.prototype.moveToFront = function() { 
+	    return this.each(function() { 
+	      this.parentNode.appendChild(this); 
+	    }); 
+	}; 
+	function numberWithCommas(x) {
+	    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+
+</script>
+</head>
+
+<body>
+	<div class="container">
+		<div class="col-lg-12 col-md-12 col-sm-12">
+			<h1>LingoScope - Surveillance</h1>
+			
+			<h6>Select sources to compare:</h6>
+			
+			<div class="btn-group" id="outlet1">
+				<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown"><span></span>&nbsp;&nbsp;<span class="caret"></button>
+				<ul class="dropdown-menu" role="menu"></ul>
+			</div>
+			Vs.
+			<div class="btn-group" id="outlet2">
+				<button type="button" class="btn btn-custom2 dropdown-toggle" data-toggle="dropdown"><span></span>&nbsp;&nbsp;<span class="caret"></button>
+				<ul class="dropdown-menu" role="menu"></ul>
+			</div>
+
+		</div>
+		<div class="col-lg-12 col-md-12 col-sm-12">
+			<div style="display: inline; float: left;">
+				<h6 id="search_examples">Search</h6>
+				<div style="width: 250px;">
+					<div class="input-group">
+				      <input id="search_field" type="text" class="typeahead form-control" placeholder="" />
+				      <span class="input-group-btn">
+				        <button id="search_button" class="btn btn-default" type="button">Go</button>
+				      </span>
+				    </div>
+				</div>
+			</div>
+			<div style="margin-left: 25px; display: inline; float:left; clear: right">
+				<h6>Select word filters:</h6>
+				<div id="filter_button_group" class="btn-group" data-toggle='buttons'>					
+					<label class="btn btn-default">
+					    <input type="checkbox" name="options" id="filter_virtue"> Virtue</input>
+					</label>
+					<label class="btn btn-default">
+					    <input type="checkbox" name="options" id="filter_vice"> Vice</input>
+					</label>
+					<label class="btn btn-default">
+					    <input type="checkbox" name="options" id="filter_bias"> Bias</input>
+					</label>
+					<label class="btn btn-default">
+					    <input type="checkbox" name="options" id="filter_zscore"> Z-Score</input>
+					</label>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="col-lg-12 col-md-12 col-sm-12" style="margin-top: 1px; float: left; height: 10px">&nbsp;</div>
+		<div class="col-lg-8 col-md-8 col-sm-12" style="float:left">	
+			<h6>Compare Cloud</h6>		
+			<div id="primary_view"></div>
+		</div>
+		<div class="col-lg-4 col-md-4 col-sm-12" style="float:left">
+			<h6>Details</h6>
+			<div id="details_view"></div>
+		</div>
+		
+</body>
+</html>

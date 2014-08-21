@@ -1,0 +1,401 @@
+[
+  {
+    "string":"ice sheet"
+  },
+  {
+    "string":"ice shelf"
+  },
+  {
+    "string":"permafrost"
+  },
+  {
+    "string":"snow cover"
+  },
+  {
+    "string":"glacier"
+  },
+  {
+    "string":"sea ice"
+  },
+  {
+    "string":"climate change"
+  },
+  {
+    "string":"abrupt climate change"
+  },
+  {
+    "string":"global warming"
+  },
+  {
+    "string":"climate oscillation"
+  },
+  {
+    "string":"enso"
+  },
+  {
+    "string":"pdo"
+  },
+  {
+    "string":"nao"
+  },
+  {
+    "string":"el nino"
+  },
+  {
+    "string":"la nina"
+  },
+  {
+    "string":"mjo"
+  },
+  {
+    "string":"antarctic oscillation"
+  },
+  {
+    "string":"arctic oscillation"
+  },
+  {
+    "string":"teleconnection"
+  },
+  {
+    "string":"global climate change"
+  },
+  {
+    "string":"interglacial"
+  },
+  {
+    "string":"ice age"
+  },
+  {
+    "string":"climate impact"
+  },
+  {
+    "string":"climate monitor"
+  },
+  {
+    "string":"climate research"
+  },
+  {
+    "string":"climate observation"
+  },
+  {
+    "string":"climate model"
+  },
+  {
+    "string":"climate projection"
+  },
+  {
+    "string":"climate prediction"
+  },
+  {
+    "string":"climate forecast"
+  },
+  {
+    "string":"climate assessment"
+  },
+  {
+    "string":"flood"
+  },
+  {
+    "string":"drought"
+  },
+  {
+    "string":"storm intensity"
+  },
+  {
+    "string":"wildfire"
+  },
+  {
+    "string":"extinction"
+  },
+  {
+    "string":"sea level rise"
+  },
+  {
+    "string":"ccsp"
+  },
+  {
+    "string":"infectious disease"
+  },
+  {
+    "string":"temperature anomaly"
+  },
+  {
+    "string":"ocean acidification"
+  },
+  {
+    "string":"coral bleaching"
+  },
+  {
+    "string":"ice melt"
+  },
+  {
+    "string":"quality of life"
+  },
+  {
+    "string":"seasonal shift"
+  },
+  {
+    "string":"ipcc"
+  },
+  {
+    "string":"heat wave"
+  },
+  {
+    "string":"famine"
+  },
+  {
+    "string":"heavy rain"
+  },
+  {
+    "string":"health impact"
+  },
+  {
+    "string":"species migration"
+  },
+  {
+    "string":"climate adaptation"
+  },
+  {
+    "string":"community planning"
+  },
+  {
+    "string":"structure relocation"
+  },
+  {
+    "string":"capacity building"
+  },
+  {
+    "string":"sustainable development"
+  },
+  {
+    "string":"climate vulnerability"
+  },
+  {
+    "string":"climate resilient"
+  },
+  {
+    "string":"agricultural adaptation"
+  },
+  {
+    "string":"resource management"
+  },
+  {
+    "string":"energy conservation"
+  },
+  {
+    "string":"carbon offset "
+  },
+  {
+    "string":"shore protection"
+  },
+  {
+    "string":"climate extreme"
+  },
+  {
+    "string":"climate forcing"
+  },
+  {
+    "string":"greenhouse gas"
+  },
+  {
+    "string":"water vapor"
+  },
+  {
+    "string":"albedo"
+  },
+  {
+    "string":"solar irradiance"
+  },
+  {
+    "string":"greenhouse effect"
+  },
+  {
+    "string":"volcanic eruption"
+  },
+  {
+    "string":"anthropogenic"
+  },
+  {
+    "string":"aerosol"
+  },
+  {
+    "string":"fossil fuel"
+  },
+  {
+    "string":"natural gas"
+  },
+  {
+    "string":"oil"
+  },
+  {
+    "string":"coal"
+  },
+  {
+    "string":"land cover change"
+  },
+  {
+    "string":"biomass burning"
+  },
+  {
+    "string":"aerosol reflectance"
+  },
+  {
+    "string":"ghg emission"
+  },
+  {
+    "string":"tropospheric ozone"
+  },
+  {
+    "string":"nitrous exide"
+  },
+  {
+    "string":"carbon dioxide"
+  },
+  {
+    "string":"chlorofluorocarbon"
+  },
+  {
+    "string":"methane"
+  },
+  {
+    "string":"climate mitigation"
+  },
+  {
+    "string":"alternative energy sources"
+  },
+  {
+    "string":"geothermal energy"
+  },
+  {
+    "string":"biofuel"
+  },
+  {
+    "string":"reduce emission"
+  },
+  {
+    "string":"carbon sequestration"
+  },
+  {
+    "string":"hydropower"
+  },
+  {
+    "string":"energy policy"
+  },
+  {
+    "string":"wind farm"
+  },
+  {
+    "string":"solar panel"
+  },
+  {
+    "string":"cap and trade"
+  },
+  {
+    "string":"carbon tax"
+  },
+  {
+    "string":"climate policy"
+  },
+  {
+    "string":"climate anomaly"
+  },
+  {
+    "string":"climate variability"
+  },
+  {
+    "string":"climate system"
+  },
+  {
+    "string":"natural variability"
+  },
+  {
+    "string":"mesoclimate"
+  },
+  {
+    "string":"orbital variation"
+  },
+  {
+    "string":"microclimate"
+  },
+  {
+    "string":"climate predictability"
+  },
+  {
+    "string":"climate cycle"
+  },
+  {
+    "string":"energy cycle"
+  },
+  {
+    "string":"milankovitch cycles"
+  },
+  {
+    "string":"water cycle"
+  },
+  {
+    "string":"carbon cycle"
+  },
+  {
+    "string":"solar cycle"
+  },
+  {
+    "string":"climate science"
+  },
+  {
+    "string":"climate literacy"
+  },
+  {
+    "string":"earth science"
+  },
+  {
+    "string":"climate service"
+  },
+  {
+    "string":"climatology"
+  },
+  {
+    "string":"paleoclimatology"
+  },
+  {
+    "string":"decision support service"
+  },
+  {
+    "string":"hazard monitoring"
+  },
+  {
+    "string":"air quality"
+  },
+  {
+    "string":"water quality"
+  },
+  {
+    "string":"epidemiology"
+  },
+  {
+    "string":"public health science"
+  },
+  {
+    "string":"disaster assessment"
+  },
+  {
+    "string":"water management"
+  },
+  {
+    "string":"insurance"
+  },
+  {
+    "string":"flood risk"
+  },
+  {
+    "string":"crop risk"
+  },
+  {
+    "string":"health risk"
+  },
+  {
+    "string":"climate"
+  },
+  {
+    "string":"climate feedback"
+  }
+]

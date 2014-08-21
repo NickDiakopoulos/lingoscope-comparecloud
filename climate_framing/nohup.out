@@ -1,0 +1,19 @@
+climate
+http://lingoscope.newscred.com/climate?access_key=8996a2c183f27731f296d23ff85f02c2&scope=sentence&query=climate&sceptics_class=s&format=json
+climate
+Traceback (most recent call last):
+  File "gatherData.py", line 34, in <module>
+    getContextTerms(climate_term, blog_class, context)
+  File "gatherData.py", line 13, in getContextTerms
+    r = requests.get(url_root, params=params)
+  File "/home/nad/lib/python2.6/requests-0.13.6-py2.6.egg/requests/api.py", line 63, in get
+    return request('get', url, **kwargs)
+  File "/home/nad/lib/python2.6/requests-0.13.6-py2.6.egg/requests/safe_mode.py", line 38, in wrapped
+    return function(method, url, **kwargs)
+  File "/home/nad/lib/python2.6/requests-0.13.6-py2.6.egg/requests/api.py", line 50, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/home/nad/lib/python2.6/requests-0.13.6-py2.6.egg/requests/sessions.py", line 238, in request
+    r.send(prefetch=prefetch)
+  File "/home/nad/lib/python2.6/requests-0.13.6-py2.6.egg/requests/models.py", line 608, in send
+    raise ConnectionError(e)
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='lingoscope.newscred.com', port=80): Max retries exceeded with url: /climate?access_key=8996a2c183f27731f296d23ff85f02c2&scope=sentence&query=climate&sceptics_class=a&format=json
