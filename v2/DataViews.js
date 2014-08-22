@@ -40,8 +40,10 @@ CompareCloud = Backbone.View.extend({
 		var thresh = 0.00;
 		this.ccterms = new CCTermCollection();
 		
+		console.log(this.pm1.get("anchorTermPostHits"))
+		console.log(this.pm2.get("anchorTermPostHits"))
 		// If we're looking at a top level prevalence then anchorTermPostHits will be zero
-		if (this.pm1.get("anchorTermPostHits") == 0)
+		if (this.pm1.get("anchorTerm") == "")
 		{
 			_.each(this.pm1.get("terms").models, function (m) {	
 				if (m.get("filteredOut") == 0)	
@@ -74,7 +76,7 @@ CompareCloud = Backbone.View.extend({
 			}, this)
 		}
 		else
-		{
+		{			
 			_.each(this.pm1.get("terms").models, function (m) {	
 				if (m.get("filteredOut") == 0)	
 				{
@@ -86,7 +88,7 @@ CompareCloud = Backbone.View.extend({
 				{
 					var cct = this.ccterms.findWhere({term: m.get("term")});
 					if (cct != null)
-					{
+					{						
 						cct.set("postHits_c2", m.get("postHits"));					
 						cct.set("postRate_c2", m.get("postHits") / this.pm2.get("anchorTermPostHits"));
 						cct.set("sentenceHits_c2", m.get("sentenceHits"));
@@ -112,7 +114,7 @@ CompareCloud = Backbone.View.extend({
 		}))
 	},
 	refreshFilters: function() {
-		
+		//console.log(this.pm1)
 		_.each(this.pm1.get("terms").models, function (m) {
 			m.set("filteredOut", 0);
 		}, this);
@@ -129,20 +131,31 @@ CompareCloud = Backbone.View.extend({
 				m.set("filteredOut", 1);
 			if (window.params.filter_zscore == 1)
 			{
+				//http://www.statext.com/practice/ProportionTestTwo01.php
 				var m2 = this.pm2.get("terms").findWhere({term: m.get("term")});	
 				//console.log(m2)
 				if (m2 != undefined)
 				{
-					var proportion1 = m.get("postHits") / this.pm1.get("totalPosts");
-					var proportion2 = m2.get("postHits") / this.pm2.get("totalPosts");
-					var pooled_proportions = parseFloat((m.get("postHits") + m2.get("postHits")) / (this.pm1.get("totalPosts") + this.pm2.get("totalPosts")));
-					var std_dev = Math.sqrt(pooled_proportions * (1-pooled_proportions) / this.pm1.get("totalPosts") + pooled_proportions * (1 - pooled_proportions) / this.pm2.get("totalPosts"));
-					var z_score = (proportion1 - proportion2) / std_dev;
-					if (Math.abs(z_score) > 1.96)
+					// overview
+					var postCount1 = this.pm1.get("totalPosts");
+					var postCount2 = this.pm2.get("totalPosts");
+					// Context view
+					if (this.pm1.get("anchorTerm") != "")
 					{
-						m.set("filteredOut", 1);
-						//console.log(z_score)
+						postCount1 = m.get("anchorTermPostHits");
+						postCount2 = m2.get("anchorTermPostHits");
 					}
+					var proportion1 = m.get("postHits") / postCount1;
+					var proportion2 = m2.get("postHits") / postCount2;
+					var pooled_proportions = parseFloat((m.get("postHits") + m2.get("postHits")) / (postCount1 + postCount2));
+					var std_dev = Math.sqrt(pooled_proportions * (1-pooled_proportions) / postCount1 + pooled_proportions * (1 - pooled_proportions) / postCount2);
+					var z_score = (proportion1 - proportion2) / std_dev;
+										
+					//if (Math.abs(z_score) < 1.96) // p < .05
+					if (Math.abs(z_score) < 2.576) // p < .01									
+						m.set("filteredOut", 1);						
+					// else
+					// 	console.log(z_score + " " + m.get("term"))
 				}
 			}
 		}, this);	
@@ -158,12 +171,23 @@ CompareCloud = Backbone.View.extend({
 				var m2 = this.pm1.get("terms").findWhere({term: m.get("term")});	
 				if (m2 != undefined)
 				{
-					var proportion1 = m.get("postHits") / this.pm2.get("totalPosts");
-					var proportion2 = m2.get("postHits") / this.pm1.get("totalPosts");
-					var pooled_proportions = parseFloat((m.get("postHits") + m2.get("postHits")) / (this.pm1.get("totalPosts") + this.pm2.get("totalPosts")));
-					var std_dev = Math.sqrt(pooled_proportions * (1-pooled_proportions) / this.pm1.get("totalPosts") + pooled_proportions * (1 - pooled_proportions) / this.pm2.get("totalPosts"));
+					// overview
+					var postCount1 = this.pm1.get("totalPosts");
+					var postCount2 = this.pm2.get("totalPosts");
+					// Context view
+					if (this.pm1.get("anchorTerm") != "")
+					{
+						postCount1 = m.get("anchorTermPostHits");
+						postCount2 = m2.get("anchorTermPostHits");
+					}
+
+					var proportion1 = m.get("postHits") / postCount2;
+					var proportion2 = m2.get("postHits") / postCount1;
+					var pooled_proportions = parseFloat((m.get("postHits") + m2.get("postHits")) / (postCount2 + postCount1));
+					var std_dev = Math.sqrt(pooled_proportions * (1-pooled_proportions) / postCount2 + pooled_proportions * (1 - pooled_proportions) / postCount1);
 					var z_score = (proportion1 - proportion2) / std_dev;
-					if (Math.abs(z_score) > 1.96)
+					//if (Math.abs(z_score) < 1.96)
+					if (Math.abs(z_score) < 2.576) // p < .01
 						m.set("filteredOut", 1);
 				}
 			}
@@ -189,6 +213,8 @@ CompareCloud = Backbone.View.extend({
 		//var yscale = d3.scale.linear().domain([-1, 1]).range([0, height]);
 		var yscale = d3.scale.ordinal().domain(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]).rangeBands([13, height])
 		
+		var colorScale = d3.scale.linear().domain([-.1, 0, .1]).interpolate(d3.interpolateRgb).range(["rgb(255,0,128)", "rgb(204,204,204)", "rgb(30,166,255)"])
+		console.log(colorScale(0))
 		// Get a sub sample of text nodes
 		var nodes = _.sample(this.ccterms.models, NUM_TERMS);
 		//console.log(nodes)
@@ -201,11 +227,12 @@ CompareCloud = Backbone.View.extend({
 		//console.log(combinedRateMax)
 		var sizeScale = d3.scale.linear()
 							.domain([combinedRateMin.get("combinedPostRate"), combinedRateMax.get("combinedPostRate")])
-							.range([9, 20])
+							.range([10, 24])
 
 		// stopgap
 		_.each(nodes, function (m) {
 			m.x = xscale(m.get("postRate_c2") - m.get("postRate_c1"));
+			//console.log(m)
 			m.y = yscale(m.get("term").substring(0,1)) + 13* Math.random();
 		}, this)
 
@@ -242,14 +269,18 @@ CompareCloud = Backbone.View.extend({
 		node.append("text")			
 			.text(function (d) { return d.get("term"); } )
 			.style("font-size", function (d) { return sizeScale(d.get("combinedPostRate")) })
-			.attr("class", function (d) { 
-				if (d.get("postRate_c2") - d.get("postRate_c1") > 0.03)
-					return "term c2";
-				else if (d.get("postRate_c2") - d.get("postRate_c1") < -0.03)
-					return "term c1";		
-				else 
-					return "term c3";		
-			})			
+			.attr("class", "term")
+			.style("fill", function (d) {				
+				return colorScale(d.get("postRate_c2") - d.get("postRate_c1"));
+			})
+			// .attr("class", function (d) { 
+			// 	if (d.get("postRate_c2") - d.get("postRate_c1") > 0.03)
+			// 		return "term c2";
+			// 	else if (d.get("postRate_c2") - d.get("postRate_c1") < -0.03)
+			// 		return "term c1";		
+			// 	else 
+			// 		return "term c3";		
+			// })			
 		  	.attr("x", function (d) { return 0; })
 		  	.attr("y", function (d) { return 0; })
 

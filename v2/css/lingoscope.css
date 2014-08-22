@@ -11,11 +11,13 @@ h6, h5 {
 }
 
 .c1 {
-	fill: #B291A8;
+	/*fill: #B291A8;*/
+	fill: rgb(255,0,128);
 }
 
 .c2 {
-	fill: #92B88D;
+	/*fill: #92B88D;*/
+	fill: rgb(30,166,255);
 }
 
 .c3 {
@@ -346,15 +348,15 @@ h6, h5 {
 
 /* http://twitterbootstrap3buttons.w3masters.nl/*/
 .btn-custom {
-  background-color: #B291A8; /* orange: BCDDFD */;
-  border-color: #B291A8;
+  background-color: rgb(255,0,128); /* orange: BCDDFD */;
+  border-color: rgb(255,0,128);
 }
 .btn-custom:hover,
 .btn-custom:focus,
 .btn-custom:active,
 .btn-custom.active {
-  background-color: #B291A8;
-  border-color: #B291A8;
+  background-color: rgb(255,0,128);
+  border-color: rgb(255,0,128);
 }
 .btn-custom.disabled:hover,
 .btn-custom.disabled:focus,
@@ -373,8 +375,8 @@ fieldset[disabled] .btn-custom.active {
 }
 
 .btn-custom2 {
-  background-color: #92B88D;
-  border-color: #92B88D;
+  background-color: rgb(30,166,255);
+  border-color: rgb(30,166,255);
 }
 .btn-custom2:hover,
 .btn-custom2:focus,
