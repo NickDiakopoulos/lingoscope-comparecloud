@@ -49,15 +49,23 @@ h6, h5 {
 }
 
 .outlet1_highlight {
-	background-color: rgba(253,196,145,.4);
+	background-color: rgba(255,0,128,.2);
 	font-weight: 600;
 }
 
 .outlet2_highlight {
-	background-color: rgba(253,142,131,.3);
+	background-color: rgba(30,166,255,.2);
 	font-weight: 600;
 }
 
+.sentence {
+	font-family: "Helvetica";
+	font-size: 10pt;
+	line-height: 100%;
+	padding-bottom: 5px;
+	padding-top: 5px;
+	border-bottom: solid 1px #ccc;
+}
 
 
 /*.outlet1, #outlet1 {
@@ -104,6 +112,7 @@ h6, h5 {
 	height: 500px;
 	border: 1px solid #eee;
 	padding: 5px;
+	overflow-y: auto;
 }
 
 #details_view_list {
@@ -370,8 +379,8 @@ fieldset[disabled] .btn-custom:hover,
 fieldset[disabled] .btn-custom:focus,
 fieldset[disabled] .btn-custom:active,
 fieldset[disabled] .btn-custom.active {
-  background-color: #B291A8;
-  border-color: #B291A8;
+  background-color: rgb(255,0,128);
+  border-color: rgb(255,0,128);
 }
 
 .btn-custom2 {
@@ -382,8 +391,8 @@ fieldset[disabled] .btn-custom.active {
 .btn-custom2:focus,
 .btn-custom2:active,
 .btn-custom2.active {
-  background-color: #92B88D;
-  border-color: #92B88D;
+  background-color: rgb(30,166,255);
+  border-color: rgb(30,166,255);
 }
 .btn-custom2.disabled:hover,
 .btn-custom2.disabled:focus,
@@ -397,8 +406,8 @@ fieldset[disabled] .btn-custom2:hover,
 fieldset[disabled] .btn-custom2:focus,
 fieldset[disabled] .btn-custom2:active,
 fieldset[disabled] .btn-custom2.active {
-  background-color: #92B88D;
-  border-color: #92B88D;
+  background-color: rgb(30,166,255);
+  border-color: rgb(30,166,255);
 }
 
 

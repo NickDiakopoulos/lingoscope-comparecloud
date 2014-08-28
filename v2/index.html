@@ -60,8 +60,19 @@
 		<div><b>{{= corpusName_c2 }}</b></div>
 		<div>Post Usage Rate: {{= postRate_c2_percent}}%</div>
 		<div>Post Hits: {{ print(numberWithCommas(postHits_c2)) }}</div>
+		<div class="details_header"><b>{{= corpusName_c1 }} Samples</b></div>
+		<div id="c1s">{{ _.each(c1_sentences, function(s) { }}
+				<div class='sentence'>{{= s.get("text")}} </div>
+			{{ }) }} 				
+		</div>
+		<div class="details_header"><b>{{= corpusName_c2 }} Samples</b></div>
+		<div id="c2s">{{ _.each(c2_sentences, function(s) { }}
+				<div class='sentence'>{{= s.get("text")}} </div>
+			{{ }) }} 				
+		</div>
 	</div>
 </script>
+
 
 <script id="suggestionItemTemplate" type="text/template">
   	<div class="suggestion_item">{{= value }}</div>
@@ -70,6 +81,12 @@
 <script type="text/javascript">
 	window.params = new Object();
 	
+	// for(s in c1_sentences)
+				//	print(c1_sentences);
+				// _.each(c1_sentences, function (s) { 
+				//  print(s.text)
+			 //   })
+			//}}
 
 	$(document).ready(function() {		
 		// Use mustache style templates
@@ -108,6 +125,30 @@
 				bias_dict[m.get("word")] = 1;
 			}, this)
 		}})
+
+		
+		// var postCollection = new PostCollection();		
+		// window.post_dictionary = {}
+		// postCollection.fetch({ 
+		// 	success: function () { 	
+		// 		_.each(postCollection.models, function (m) {
+		// 			console.log(m.get("postID"))
+		// 			window.post_dictionary[m.get("postID")] = [m.get("link")];
+		// 		}, this)
+		// 		console.log(window.post_dictionary)	
+		// 	}
+		// })
+	 
+		// a dict to make a post id back to links etc
+		$.ajax({
+		    type: "GET",
+		    url: config.URL_ROOT + "surveillance/postDictionary.json",		   		    
+		    success: function(data){
+		        window.post_dictionary = data;
+		        console.log("loaded post dict");
+		        //console.log(window.post_dictionary);
+		    }
+		});
 
 
 		$("#filter_virtue").parent().on("click", function (e) {			
@@ -216,7 +257,7 @@
 			  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
 			  queryTokenizer: Bloodhound.tokenizers.whitespace,
 			  prefetch: {
-			  	url: config.URL_ROOT + 'surveillance/data/corpusComputedTerms.json',
+			  	url: config.URL_ROOT + 'surveillance/corpusComputedTerms.json',
 			  	filter: function(list) {		
 			  		//console.log(list)	  		
 			  		return $.map(list.terms, function(item) { return {value: item.term}})
@@ -260,16 +301,17 @@
 		<div class="col-lg-12 col-md-12 col-sm-12">
 			<h1>LingoScope - Surveillance</h1>
 			
-			<h6>Select sources to compare:</h6>
+			<h6>Compare Corpora:</h6>
 			
 			<div class="btn-group" id="outlet1">
-				<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown"><span></span>&nbsp;&nbsp;<span class="caret"></button>
-				<ul class="dropdown-menu" role="menu"></ul>
+				<button type="button" class="btn btn-custom"><span></span></button>
+				<!--<ul class="dropdown-menu" role="menu"></ul>-->
 			</div>
 			Vs.
 			<div class="btn-group" id="outlet2">
-				<button type="button" class="btn btn-custom2 dropdown-toggle" data-toggle="dropdown"><span></span>&nbsp;&nbsp;<span class="caret"></button>
-				<ul class="dropdown-menu" role="menu"></ul>
+				<!--<button type="button" class="btn btn-custom2 dropdown-toggle" data-toggle="dropdown"><span></span>&nbsp;&nbsp;<span class="caret"></button>-->
+				<button type="button" class="btn btn-custom2"><span></span></button>
+				<!--<ul class="dropdown-menu" role="menu"></ul>-->
 			</div>
 
 		</div>

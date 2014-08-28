@@ -33,9 +33,9 @@ PrevalenceModel = Backbone.Model.extend({
 		anchorTerm = typeof anchorTerm !== undefined ? anchorTerm : "";
 		this.set("anchorTerm", anchorTerm)
 		if (this.get("anchorTerm") == "")
-			this.urlRoot = config.URL_ROOT + "surveillance/data/corpusPrevalence_" + this.get("corpusID") + ".json"
+			this.urlRoot = config.URL_ROOT + "surveillance/corpusPrevalence_" + this.get("corpusID") + ".json"
 		else
-			this.urlRoot = config.URL_ROOT + "surveillance/data/corpusPrevalence_" + this.get("corpusID") + "_" + this.get("anchorTerm") + ".json"
+			this.urlRoot = config.URL_ROOT + "surveillance/corpusPrevalence_" + this.get("corpusID") + "_" + this.get("anchorTerm") + ".json"
 	},
 	parse: function (data, options) {	
 		data.terms = new TermCollection(data.terms)					
@@ -93,7 +93,55 @@ var WordCollection = Backbone.Collection.extend({
 		
 	},
 	setURL: function (filename) {
-		this.url = config.URL_ROOT + "data/"+filename;
+		this.url = config.WF_URL_ROOT + "data/"+filename;
 	}
 });
 
+var SentenceModel = Backbone.Model.extend({
+	defaults: {
+		text: "",
+		postID: -1,
+		link: "", 
+		published_at: "", 
+	},
+	parse: function (data, options) {
+		//console.log(window.post_dictionary)
+		var o = window.post_dictionary[data.postID];
+		//console.log(o)
+		data.link = o.link;
+		data.published_at = o.published_at;
+		return data;
+	}
+});
+
+var SentenceCollection = Backbone.Collection.extend({
+	model: SentenceModel,
+	initialize: function () {		
+		
+	},
+	setURL: function (corpusID, anchorTerm, contextTerm) {
+		this.url = config.URL_ROOT + "surveillance/sentences_anchor_context/sentences_"+corpusID+"_"+anchorTerm+"_"+contextTerm+".json";
+		console.log(this.url)
+	}
+});
+
+
+// var PostModel = Backbone.Model.extend({
+// 	defaults: {
+// 		postID: -1,
+// 		link: "",
+// 		published_at: "",		
+// 	}
+// });
+
+// var PostCollection = Backbone.Collection.extend({
+// 	model: PostModel,
+// 	initialize: function () {		
+// 		this.url = config.URL_ROOT + "surveillance/postDictionary.json";
+// 	},
+// 	parse: function (data, options) {	
+// 		console.log("parse")
+// 		data.published_at = new Date(Date.parse(data.published_at));
+// 		return data;
+// 	},
+// });

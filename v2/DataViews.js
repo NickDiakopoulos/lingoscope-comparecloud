@@ -209,12 +209,13 @@ CompareCloud = Backbone.View.extend({
 		// console.log(width);
 		// console.log(height)
 		
-		var xscale = d3.scale.linear().domain([-.4, .4]).range([0, width]);
+		var xscale = d3.scale.linear().domain([-.4, 0, 0, .4]).range([0, .3*width, .7*width, width]);
 		//var yscale = d3.scale.linear().domain([-1, 1]).range([0, height]);
 		var yscale = d3.scale.ordinal().domain(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]).rangeBands([13, height])
 		
+		// Interpolator from pink to blue
 		var colorScale = d3.scale.linear().domain([-.1, 0, .1]).interpolate(d3.interpolateRgb).range(["rgb(255,0,128)", "rgb(204,204,204)", "rgb(30,166,255)"])
-		console.log(colorScale(0))
+		
 		// Get a sub sample of text nodes
 		var nodes = _.sample(this.ccterms.models, NUM_TERMS);
 		//console.log(nodes)
@@ -231,9 +232,10 @@ CompareCloud = Backbone.View.extend({
 
 		// stopgap
 		_.each(nodes, function (m) {
-			m.x = xscale(m.get("postRate_c2") - m.get("postRate_c1"));
-			//console.log(m)
+			m.x = xscale(m.get("postRate_c2") - m.get("postRate_c1"));		
 			m.y = yscale(m.get("term").substring(0,1)) + 13* Math.random();
+			m.originX = m.x;
+			m.originY = m.y;
 		}, this)
 
 		
@@ -257,7 +259,47 @@ CompareCloud = Backbone.View.extend({
 				window.details_view.model = _.extend(window.details_view.model, {corpusName_c1: window.params.corpus1.get("corpusName"), corpusName_c2: window.params.corpus2.get("corpusName"), anchorTermPostHits_c1: _that.pm1.get("anchorTermPostHits"), anchorTermPostHits_c2: _that.pm2.get("anchorTermPostHits"), search_term: window.params.search_term})				
 				window.details_view.model.postRate_c1_percent = (100*parseFloat(window.details_view.model.postRate_c1)).toFixed(1);
 				window.details_view.model.postRate_c2_percent = (100*parseFloat(window.details_view.model.postRate_c2)).toFixed(1);
-				window.details_view.render();
+				
+				// TODO SWITCH on if i need to get sentences here
+				if (_that.pm1.get("anchorTerm") == "")
+				{
+					window.details_view.render();
+				}
+				else
+				{
+					var c1_sentences = new SentenceCollection();
+					c1_sentences.setURL(window.params.corpus1.get("corpusID"), window.params.search_term, window.details_view.model.term);
+
+					// Regular expressions to sub in highlight spans
+					var regEx1 = new RegExp("\\b"+window.params.search_term+"\\b","ig");
+					var regEx2 = new RegExp("\\b"+window.details_view.model.term+"\\b","ig");
+
+					var c2_sentences = new SentenceCollection();
+					c2_sentences.setURL(window.params.corpus2.get("corpusID"), window.params.search_term, window.details_view.model.term);
+					c1_sentences.fetch({
+						success: function () 
+						{
+							_.each(c1_sentences.models, function (s) {
+								s.set("text", s.get("text").replace(regEx1, "<span class=outlet1_highlight>"+window.params.search_term+"</span>"))
+								s.set("text", s.get("text").replace(regEx2, "<span class=outlet1_highlight>"+window.details_view.model.term+"</span>"))
+							}, this)
+							c2_sentences.fetch({
+								success: function () 
+								{
+									_.each(c2_sentences.models, function (s) {
+										s.set("text", s.get("text").replace(regEx1, "<span class=outlet2_highlight>"+window.params.search_term+"</span>"))
+										s.set("text", s.get("text").replace(regEx2, "<span class=outlet2_highlight>"+window.details_view.model.term+"</span>"))
+									}, this)
+									window.details_view.model = _.extend(window.details_view.model, {c1_sentences: c1_sentences.models, c2_sentences: c2_sentences.models})
+									//console.log(window.details_view.model)
+									//window.details_view.model.c1_sentences = c1_sentences.models;
+
+									window.details_view.render();
+								}
+							})
+						}
+					})
+				}
 			})
 			.on("dblclick", function (d) {
 				// double click initiates a search				
@@ -356,7 +398,7 @@ CompareCloud = Backbone.View.extend({
 		this.force = d3.layout.force()
 			.nodes(nodes)
 			.size([width, height])
-			.charge(-1)
+			.charge(-1.25)
 			.gravity(.015)			
 			.linkDistance(function (d) {						
 				//return Math.sqrt((d.source.x - d.target.x) * (d.source.x - d.target.x) + (d.source.y - d.target.y) * (d.source.y - d.target.y));			
@@ -384,27 +426,48 @@ CompareCloud = Backbone.View.extend({
 			 			{						 						
 			 				var bbox1 = n1.bbox;
 			 				var bbox2 = n2.bbox;
-			 				//console.log(bbox1)
-			 				//console.log(bbox2)
-			 				var xvec = (bbox1.left + bbox1.width / 2) - (bbox2.left + bbox2.width / 2);
-			 				//console.log(xvec)
-			 				n1.x += xvec * .02;
-			 				n2.x -= xvec * .02;
+			 				
+			 				var xvec = (bbox1.left + bbox1.width / 2) - (bbox2.left + bbox2.width / 2);			 			
 			 				var yvec = (bbox1.top + bbox1.height / 2) - (bbox2.top + bbox2.height / 2);
-			 				//console.log(yvec)
-			 				n1.y += yvec * .02;
-			 				n2.y -= yvec * .02;
+			 				
+			 				var length = 1.75*Math.sqrt(xvec*xvec + yvec*yvec);
+			 				//console.log(xvec_origin1)
+			 				var xincr1 = xvec / length;// - xvec_origin1 * .02;
+			 				var xincr2 = xvec / length;// + xvec_origin2 * .02;
+			 				n1.x += xincr1;
+			 				n2.x -= xincr2;
+
+			 				var yincr1 = yvec / length;// - yvec_origin1 * .01;
+			 				var yincr2 = yvec / length;// + yvec_origin2 * .01;
+			 				n1.y += yincr1;
+			 				n2.y -= yincr2;
 
 			 				// Incremental update of bounding box
-			 				bbox1.left += xvec * .02;
-			 				bbox1.right += xvec * .02;
-			 				bbox1.top += yvec * .02;
-			 				bbox1.bottom += yvec * .02;
-			 				bbox2.left -= xvec * .02;
-			 				bbox2.right -= xvec * .02;
-			 				bbox2.top -= yvec * .02;
-			 				bbox2.bottom -= yvec * .02;
-			 			}
+			 				bbox1.left += xincr1;
+			 				bbox1.right += xincr1;
+			 				bbox1.top += yincr1;
+			 				bbox1.bottom += yincr1;
+			 				bbox2.left -= xincr2;
+			 				bbox2.right -= xincr2;
+			 				bbox2.top -= yincr2;
+			 				bbox2.bottom -= yincr2;
+			 			}			 			
+		 				// var bbox2 = n2.bbox;
+		 				
+		 				// var xvec = (bbox2.left + bbox2.width / 2) - (n2.originX + bbox2.width / 2);		 				
+		 				// var yvec = (bbox2.top + bbox2.height / 2) - (n2.originY + bbox2.height / 2);		 				
+		 				// var length = 100*Math.sqrt(xvec*xvec + yvec*yvec);		 				
+		 				// var xincr2 = xvec / length;		 				
+		 				// n2.x -= xincr2;
+		 				// var yincr2 = yvec / length;
+		 				// //n2.y -= yincr2;
+
+		 				// // Incremental update of bounding box
+		 				// bbox2.left -= xincr2;
+		 				// bbox2.right -= xincr2;
+		 				// // bbox2.top -= yincr2;
+		 				// // bbox2.bottom -= yincr2;
+		 				
 					}
 				}, this)
 				
@@ -516,9 +579,13 @@ DetailsView = Backbone.View.extend({
 	render: function () {
 		this.$el.empty();
 		if (window.params.search_term == "")
+		{
 			this.$el.html(this.template(this.model));
+		}
 		else
-			this.$el.html(this.templateContext(this.model));
+		{
+			this.$el.html(this.templateContext(this.model));			
+		}
 		return this;
 	},
 	clearDetails: function () {
