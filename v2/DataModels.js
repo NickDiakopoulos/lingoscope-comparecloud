@@ -77,6 +77,7 @@ var CCTermModel = Backbone.Model.extend({
 var CCTermCollection = Backbone.Collection.extend({
 	model: CCTermModel,
 	url: "",
+	//comparator: "term"
 })
 
 
@@ -102,6 +103,7 @@ var SentenceModel = Backbone.Model.extend({
 		text: "",
 		postID: -1,
 		link: "", 
+		link_display: "",
 		published_at: "", 
 	},
 	parse: function (data, options) {
@@ -109,7 +111,11 @@ var SentenceModel = Backbone.Model.extend({
 		var o = window.post_dictionary[data.postID];
 		//console.log(o)
 		data.link = o.link;
-		data.published_at = o.published_at;
+		data.link_display = o.link.substring(0, 50) + "...";
+		//console.log(o.published_at)
+		data.published_at = new Date(Date.parse(o.published_at));
+		//console.log(data.published_at.toUTCString())
+		//console.log(data.published_at.getMonth())
 		return data;
 	}
 });
@@ -121,7 +127,7 @@ var SentenceCollection = Backbone.Collection.extend({
 	},
 	setURL: function (corpusID, anchorTerm, contextTerm) {
 		this.url = config.URL_ROOT + "surveillance/sentences_anchor_context/sentences_"+corpusID+"_"+anchorTerm+"_"+contextTerm+".json";
-		console.log(this.url)
+		//console.log(this.url)
 	}
 });
 

@@ -33,34 +33,74 @@
 	</div>
 </script>
 
-
-<script id="detailsTemplate" type="text/template">
-	<div> 
-		<div class="details_header"><b>Term:</b> &quot;{{= term}}&quot;</div>
-		<div><b>{{= corpusName_c1 }}</b></div>
+<!-- <div><b>{{= corpusName_c1 }}</b></div>
 		<div>Post Usage Rate: {{= postRate_c1_percent}}%</div>
 		<div>Post Hits: {{ print(numberWithCommas(postHits_c1)) }}</div>
 		<div><b>{{= corpusName_c2 }}</b></div>
 		<div>Post Usage Rate: {{= postRate_c2_percent}}%</div>
 		<div>Post Hits: {{ print(numberWithCommas(postHits_c2)) }}</div>
+
+-->
+
+<script id="detailsTemplate" type="text/template">
+	<div> 
+		<div class="details_header">&quot;{{= term}}&quot;</div>
+		<div class="details_bar_header_label">Use Rate (posts)</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c1"></div></div><div class="details_bar_label">({{= postRate_c1_percent}}%)</div>
+		</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c2"></div></div><div class="details_bar_label">({{= postRate_c2_percent}}%)</div>
+		</div>
+		<div class="details_bar_header_label">Use Count (posts)</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c1"></div></div><div class="details_bar_label">({{ print(numberWithCommas(postHits_c1)) }})</div>
+		</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c2"></div></div><div class="details_bar_label">({{ print(numberWithCommas(postHits_c2)) }})</div>
+		</div>
 	</div>
 </script>
 
 <script id="detailsContextTemplate" type="text/template">
 	<div> 
-		<div class="details_header"><b>Anchor Term:</b> &quot;{{= search_term}}&quot;</div>
-		<div><b>{{= corpusName_c1 }}</b></div>		
-		<div>Anchor Post Hits: {{ print(numberWithCommas(anchorTermPostHits_c1)) }}</div>
-		<div><b>{{= corpusName_c2 }}</b></div>		
-		<div>Anchor Post Hits: {{ print(numberWithCommas(anchorTermPostHits_c2)) }}</div>
-		<div class="details_header"><b>Context Term:</b> &quot;{{= term}}&quot;</div>
-		<div><b>{{= corpusName_c1 }}</b></div>
-		<div>Post Usage Rate: {{= postRate_c1_percent}}%</div>
-		<div>Post Hits: {{ print(numberWithCommas(postHits_c1)) }}</div>
-		<div><b>{{= corpusName_c2 }}</b></div>
-		<div>Post Usage Rate: {{= postRate_c2_percent}}%</div>
-		<div>Post Hits: {{ print(numberWithCommas(postHits_c2)) }}</div>
-		<div class="details_header"><b>{{= corpusName_c1 }} Samples</b></div>
+		<div class="details_header">&quot;{{= search_term }}&quot;</div>
+		<div class="details_bar_header_label">Anchor Use Count (posts)</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c1"></div></div><div class="details_bar_label">({{ print(numberWithCommas(anchorTermPostHits_c1)) }})</div>
+		</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c2"></div></div><div class="details_bar_label">({{ print(numberWithCommas(anchorTermPostHits_c2)) }})</div>
+		</div>
+		<div class="details_header" style="margin-top: 10px;">&quot;{{= term }}&quot;</div>
+		<div class="details_bar_header_label">Context Use Rate (posts)</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c1"></div></div><div class="details_bar_label">({{= postRate_c1_percent}}%)</div>
+		</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c2"></div></div><div class="details_bar_label">({{= postRate_c2_percent}}%)</div>
+		</div>
+		<div class="details_bar_header_label">Context Use Count (posts)</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c1"></div></div><div class="details_bar_label">({{ print(numberWithCommas(postHits_c1)) }})</div>
+		</div>
+		<div class="details_row_container">
+			<div class="details_bar_container"><div class="details_bar c2"></div></div><div class="details_bar_label">({{ print(numberWithCommas(postHits_c2)) }})</div>
+		</div>
+	</div>
+</script>
+
+<script id="samplesTemplate" type="text/template">
+  	<div>{{ _.each(sentences, function(s) { }}
+				<div class='sentence_container'>
+					<div class="sentence_header_link"><a target="_blank" href='{{= s.get("link") }}' title='{{= s.get("link") }}'>{{= s.get("link_display") }}</a></div>
+					<div class="sentence_header_date">{{= s.get("published_at").getUTCMonth()+1 }} / {{= s.get("published_at").getUTCFullYear() }}</div>
+					<div> {{= s.get("text")}} </div>
+				</div>
+			{{ }) }} 				
+	</div>
+</script>
+<!-- <div class="details_header"><b>{{= corpusName_c1 }} Samples</b></div>
 		<div id="c1s">{{ _.each(c1_sentences, function(s) { }}
 				<div class='sentence'>{{= s.get("text")}} </div>
 			{{ }) }} 				
@@ -70,9 +110,7 @@
 				<div class='sentence'>{{= s.get("text")}} </div>
 			{{ }) }} 				
 		</div>
-	</div>
-</script>
-
+		-->
 
 <script id="suggestionItemTemplate" type="text/template">
   	<div class="suggestion_item">{{= value }}</div>
@@ -126,7 +164,19 @@
 			}, this)
 		}})
 
-		
+
+		AppRouter = Backbone.Router.extend({
+			routes: {
+				"numterms/:num_terms" : "setApp", 
+			},
+			setApp: function (num_terms) {		
+				
+				// If the user goes to the root app URL then load the "news" version			
+				window.NUM_TERMS = num_terms;
+				
+			},
+			
+		});
 		// var postCollection = new PostCollection();		
 		// window.post_dictionary = {}
 		// postCollection.fetch({ 
@@ -236,7 +286,14 @@
 
 		window.compare_cloud = new CompareCloud();
 		window.details_view = new DetailsView();
+		window.samples_view1 = new SamplesView({el: "#corpus1_samples"});
+		window.samples_view2 = new SamplesView({el: "#corpus2_samples"});
+		//window.samples_view2 = new SamplesView("corpus2_samples");
 		//window.details_view = new DetailsView();
+
+		window.NUM_TERMS = 200;
+		appRouter = new AppRouter();		
+		Backbone.history.start();
 
 		getAndRenderData();
 		
@@ -246,6 +303,8 @@
 			//window.details_view.clearView();
 			window.compare_cloud.refreshData();
 			window.details_view.clearDetails();	
+			window.samples_view1.clearView();
+			window.samples_view2.clearView();
 		}
 
 
@@ -299,24 +358,22 @@
 <body>
 	<div class="container">
 		<div class="col-lg-12 col-md-12 col-sm-12">
-			<h1>LingoScope - Surveillance</h1>
-			
-			<h6>Compare Corpora:</h6>
-			
-			<div class="btn-group" id="outlet1">
-				<button type="button" class="btn btn-custom"><span></span></button>
-				<!--<ul class="dropdown-menu" role="menu"></ul>-->
-			</div>
-			Vs.
-			<div class="btn-group" id="outlet2">
-				<!--<button type="button" class="btn btn-custom2 dropdown-toggle" data-toggle="dropdown"><span></span>&nbsp;&nbsp;<span class="caret"></button>-->
-				<button type="button" class="btn btn-custom2"><span></span></button>
-				<!--<ul class="dropdown-menu" role="menu"></ul>-->
-			</div>
-
-		</div>
-		<div class="col-lg-12 col-md-12 col-sm-12">
+			<h3>LingoScope - Surveillance</h3>
 			<div style="display: inline; float: left;">
+				<h6>Compare Corpora:</h6>
+				
+				<div class="btn-group" id="outlet1">
+					<button type="button" class="btn btn-custom"><span></span></button>
+					<!--<ul class="dropdown-menu" role="menu"></ul>-->
+				</div>
+				Vs.
+				<div class="btn-group" id="outlet2">
+					<!--<button type="button" class="btn btn-custom2 dropdown-toggle" data-toggle="dropdown"><span></span>&nbsp;&nbsp;<span class="caret"></button>-->
+					<button type="button" class="btn btn-custom2"><span></span></button>
+					<!--<ul class="dropdown-menu" role="menu"></ul>-->
+				</div>
+			</div>
+			<div style="display: inline; float: left; margin-left: 25px;">
 				<h6 id="search_examples">Search</h6>
 				<div style="width: 250px;">
 					<div class="input-group">
@@ -348,14 +405,23 @@
 		</div>
 		
 		<div class="col-lg-12 col-md-12 col-sm-12" style="margin-top: 1px; float: left; height: 10px">&nbsp;</div>
-		<div class="col-lg-8 col-md-8 col-sm-12" style="float:left">	
+		<div class="col-lg-12 col-md-12 col-sm-12" style="float:left">	
 			<h6>Compare Cloud</h6>		
-			<div id="primary_view"></div>
+			<div id="primary_view">
+				<div id="compare_cloud_view"></div>
+				<div id="details_view"></div>
+				<img class="key" src="img/key.png"></img>
+			</div>
 		</div>
-		<div class="col-lg-4 col-md-4 col-sm-12" style="float:left">
-			<h6>Details</h6>
-			<div id="details_view"></div>
+		<div class="col-lg-12 col-md-12 col-sm-12" style="margin-top: 1px; float: left; height: 10px">&nbsp;</div>
+		<div class="col-lg-6 col-md-6 col-sm-6" style="float:left">
+			<h6>MSM Samples</h6>
+			<div id="corpus1_samples" class="samples"></div>
 		</div>
-		
+		<div class="col-lg-6 col-md-6 col-sm-6" style="float:right">
+			<h6>Blog Samples</h6>
+			<div id="corpus2_samples" class="samples"></div>
+		</div>
+		<div class="col-lg-12 col-md-12 col-sm-12" style="margin-top: 1px; float: left; height: 50px">&nbsp;</div>
 </body>
 </html>

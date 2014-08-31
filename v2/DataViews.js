@@ -105,6 +105,7 @@ CompareCloud = Backbone.View.extend({
 				m.set("combinedSentenceRate", (m.get("sentenceHits_c1") + m.get("sentenceHits_c2")) / (this.pm1.get("anchorTermSentenceHits") + this.pm2.get("anchorTermSentenceHits")));
 			}, this)
 		}
+		console.log("ccterms: " + this.ccterms.length)
 		// Filter the terms according to a threshold rate (remove some of the terms in the middle that are uninteresting?)
 		this.ccterms = new CCTermCollection(_.filter(this.ccterms.models, function (m) {
 			if (Math.abs(m.get("postRate_c2") - m.get("postRate_c1")) < thresh)			
@@ -198,10 +199,11 @@ CompareCloud = Backbone.View.extend({
 		this.render();
 	},
 	render: function () {
-		var NUM_TERMS = 200;
+		//var NUM_TERMS = 100;
 
-		this.$el.empty();	
-		this.$el.html(_.template($("#compareCloudTemplate").html()))
+		this.$el.find("#compar_cloud_view").empty();	
+		this.$el.find("#compare_cloud_view").html(_.template($("#compareCloudTemplate").html()))
+		//this.$el.append("<div id='details_view'></div>")
 		
 		var svg = d3.select("#compare_cloud_svg");
 		var width = $("#compare_cloud_svg").width();
@@ -209,17 +211,20 @@ CompareCloud = Backbone.View.extend({
 		// console.log(width);
 		// console.log(height)
 		
-		var xscale = d3.scale.linear().domain([-.4, 0, 0, .4]).range([0, .3*width, .7*width, width]);
+		//var xscale = d3.scale.linear().domain([-.4, 0, 0, .4]).range([0, .3*width, .7*width, width]);
+		var xscale = d3.scale.linear().domain([.01, .5, 1, 1, 2, 100]).range([0, .1*width, .3*width, .7*width, .9*width, width]);
 		//var yscale = d3.scale.linear().domain([-1, 1]).range([0, height]);
 		var yscale = d3.scale.ordinal().domain(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]).rangeBands([13, height])
 		
 		// Interpolator from pink to blue
-		var colorScale = d3.scale.linear().domain([-.1, 0, .1]).interpolate(d3.interpolateRgb).range(["rgb(255,0,128)", "rgb(204,204,204)", "rgb(30,166,255)"])
+		//var colorScale = d3.scale.linear().domain([-.1, 0, .1]).interpolate(d3.interpolateRgb).range(["rgb(255,0,128)", "rgb(204,204,204)", "rgb(30,166,255)"])
+		var colorScale = d3.scale.linear().domain([.5, 1, 2]).interpolate(d3.interpolateRgb).range(["rgb(255,0,128)", "rgb(204,204,204)", "rgb(30,166,255)"])
 		
 		// Get a sub sample of text nodes
-		var nodes = _.sample(this.ccterms.models, NUM_TERMS);
+		var nodes = _.sample(this.ccterms.models, window.NUM_TERMS);
+		//var nodes = _.sample(this.ccterms.models, window.NUM_TERMS);
 		//console.log(nodes)
-		//nodes = this.ccterms.models.slice(0,10)
+		//nodes = this.ccterms.models.slice(0,window.NUM_TERMS)
 
 		// Maps the lowest rate to 9pt font and highest rate to 20pt font
 		var combinedRateMax = _.max(nodes, function(m) { return m.get("combinedPostRate"); });
@@ -232,8 +237,12 @@ CompareCloud = Backbone.View.extend({
 
 		// stopgap
 		_.each(nodes, function (m) {
-			m.x = xscale(m.get("postRate_c2") - m.get("postRate_c1"));		
-			m.y = yscale(m.get("term").substring(0,1)) + 13* Math.random();
+			//m.x = xscale(m.get("postRate_c2") - m.get("postRate_c1"));	
+			var val = m.get("postRate_c2") / m.get("postRate_c1");
+			if (m.get("postRate_c1") == 0)
+				val = 10;
+			m.x = xscale(val);		
+			m.y = yscale(m.get("term").substring(0,1)); // + 13* Math.random();
 			m.originX = m.x;
 			m.originY = m.y;
 		}, this)
@@ -283,6 +292,8 @@ CompareCloud = Backbone.View.extend({
 								s.set("text", s.get("text").replace(regEx1, "<span class=outlet1_highlight>"+window.params.search_term+"</span>"))
 								s.set("text", s.get("text").replace(regEx2, "<span class=outlet1_highlight>"+window.details_view.model.term+"</span>"))
 							}, this)
+							window.samples_view1.model = new Object()
+							window.samples_view1.model.sentences = c1_sentences.models;
 							c2_sentences.fetch({
 								success: function () 
 								{
@@ -290,13 +301,37 @@ CompareCloud = Backbone.View.extend({
 										s.set("text", s.get("text").replace(regEx1, "<span class=outlet2_highlight>"+window.params.search_term+"</span>"))
 										s.set("text", s.get("text").replace(regEx2, "<span class=outlet2_highlight>"+window.details_view.model.term+"</span>"))
 									}, this)
-									window.details_view.model = _.extend(window.details_view.model, {c1_sentences: c1_sentences.models, c2_sentences: c2_sentences.models})
-									//console.log(window.details_view.model)
-									//window.details_view.model.c1_sentences = c1_sentences.models;
+									window.samples_view2.model = new Object()
+									window.samples_view2.model.sentences = c2_sentences.models;									
 
 									window.details_view.render();
+									window.samples_view1.render();
+									window.samples_view2.render();
+								},
+								error: function (collection, response, options)
+								{			
+									// There was no file for c2 sentences, so just show the c1 ones											
+									window.details_view.render();
+									window.samples_view1.render();									
 								}
 							})
+						},
+						error: function (collection, response, options)
+						{		
+							// if c1 file was not found, then at least try to show c2 samples	
+							c2_sentences.fetch({
+								success: function () 
+								{
+									_.each(c2_sentences.models, function (s) {
+										s.set("text", s.get("text").replace(regEx1, "<span class=outlet2_highlight>"+window.params.search_term+"</span>"))
+										s.set("text", s.get("text").replace(regEx2, "<span class=outlet2_highlight>"+window.details_view.model.term+"</span>"))
+									}, this)
+									window.samples_view2.model = new Object()
+									window.samples_view2.model.sentences = c2_sentences.models;								
+									window.details_view.render();									
+									window.samples_view2.render();
+								},								
+							})						
 						}
 					})
 				}
@@ -313,7 +348,12 @@ CompareCloud = Backbone.View.extend({
 			.style("font-size", function (d) { return sizeScale(d.get("combinedPostRate")) })
 			.attr("class", "term")
 			.style("fill", function (d) {				
-				return colorScale(d.get("postRate_c2") - d.get("postRate_c1"));
+				//return colorScale(d.get("postRate_c2") - d.get("postRate_c1"));
+				//console.log(d.get("postRate_c2") / d.get("postRate_c1"))
+				var val = d.get("postRate_c2") / d.get("postRate_c1");
+				if (d.get("postRate_c1") == 0)
+					val = 10;
+				return colorScale(val);
 			})
 			// .attr("class", function (d) { 
 			// 	if (d.get("postRate_c2") - d.get("postRate_c1") > 0.03)
@@ -581,18 +621,113 @@ DetailsView = Backbone.View.extend({
 		if (window.params.search_term == "")
 		{
 			this.$el.html(this.template(this.model));
+			
+			// Post rate bars
+			var domain = [0, 1];
+			var max = Math.max(this.model.postRate_c1, this.model.postRate_c2);
+			if (max < .5 && max > .25)
+				domain = [0, .5]
+			else if (max < .25 && max > .1)
+				domain = [0, .25]
+			else if (max < .1 || max < .1 )
+				domain = [0, .1]
+			var xscale = d3.scale.linear().domain(domain).range([0, 150]);
+			
+			this.$el.find(".details_bar.c1").eq(0).css("width", xscale(this.model.postRate_c1));
+			this.$el.find(".details_bar.c2").eq(0).css("width", xscale(this.model.postRate_c2));
+
+			// Post hit bars
+			var domain = [0, 20000];
+			var max = Math.max(this.model.postHits_c1, this.model.postHits_c2);
+			if (max < 10000 && max > 5000)
+				domain = [0, 10000]
+			else if (max < 5000 && max > 1000)
+				domain = [0, 5000]
+			else if (max < 1000)
+				domain = [0, 1000]
+			var xscale = d3.scale.linear().domain(domain).range([0, 150]);
+			
+			this.$el.find(".details_bar.c1").eq(1).css("width", xscale(this.model.postHits_c1));
+			this.$el.find(".details_bar.c2").eq(1).css("width", xscale(this.model.postHits_c2));
+			this.$el.show();
 		}
 		else
 		{
-			this.$el.html(this.templateContext(this.model));			
+			this.$el.html(this.templateContext(this.model));	
+
+			// Anchor term bars					
+			var domain = [0, 20000];
+			var max = Math.max(this.model.anchorTermPostHits_c1, this.model.anchorTermPostHits_c2);
+			if (max < 10000 && max > 5000)
+				domain = [0, 10000]
+			else if (max < 5000 && max > 1000)
+				domain = [0, 5000]
+			else if (max < 1000)
+				domain = [0, 1000]
+			var xscale = d3.scale.linear().domain(domain).range([0, 150]);
+			
+			this.$el.find(".details_bar.c1").eq(0).css("width", xscale(this.model.anchorTermPostHits_c1));
+			this.$el.find(".details_bar.c2").eq(0).css("width", xscale(this.model.anchorTermPostHits_c2));
+
+			// context post rate bars
+			var domain = [0, 1];
+			var max = Math.max(this.model.postRate_c1, this.model.postRate_c2);
+			if (max < .5 && max > .25)
+				domain = [0, .5]
+			else if (max < .25 && max > .1)
+				domain = [0, .25]
+			else if (max < .1 || max < .1 )
+				domain = [0, .1]
+			var xscale = d3.scale.linear().domain(domain).range([0, 150]);
+			
+			this.$el.find(".details_bar.c1").eq(1).css("width", xscale(this.model.postRate_c1));
+			this.$el.find(".details_bar.c2").eq(1).css("width", xscale(this.model.postRate_c2));
+
+			// context post count bars
+			var domain = [0, 20000];
+			var max = Math.max(this.model.postHits_c1, this.model.postHits_c2);
+			if (max < 10000 && max > 5000)
+				domain = [0, 10000]
+			else if (max < 5000 && max > 1000)
+				domain = [0, 5000]
+			else if (max < 1000 && max > 500)
+				domain = [0, 1000]
+			else if (max < 500)
+				domain = [0, 500]
+			var xscale = d3.scale.linear().domain(domain).range([0, 150]);
+			
+			this.$el.find(".details_bar.c1").eq(2).css("width", xscale(this.model.postHits_c1));
+			this.$el.find(".details_bar.c2").eq(2).css("width", xscale(this.model.postHits_c2));
+			this.$el.show();
 		}
 		return this;
 	},
 	clearDetails: function () {
+		this.hideDetails();
 		this.$el.empty();	
+	},
+	hideDetails: function () {
+		this.$el.hide();
 	}
 })
 
+SamplesView = Backbone.View.extend({	
+	events: {
 
-
+	},
+	initialize: function () {
+		//console.log(options)
+		this.template = _.template($("#samplesTemplate").html());		
+	}, 
+	render: function () {
+		this.$el.empty();
+		//console.log(this.model)
+		this.$el.html(this.template(this.model));
+		
+		return this;
+	},
+	clearView: function () {
+		this.$el.empty();	
+	}
+})
 
